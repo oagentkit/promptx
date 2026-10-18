@@ -3,6 +3,7 @@ package filestate
 import (
 	"errors"
 	"path/filepath"
+	"runtime"
 	"testing"
 	"time"
 )
@@ -107,9 +108,15 @@ func TestSameSizeContentChangeRegression(t *testing.T) {
 
 func TestPathNormalization(t *testing.T) {
 	tr := NewTracker()
-	// 同文件不同形态路径（./、重复分隔、大小写在 darwin/windows 折叠）
+	// 同文件不同形态路径（./、重复分隔；大小写折叠只在大小写不敏感的文件系统上生效）
 	tr.RecordRead(filepath.Join(".", "sub", "..", "a.go"), 0, 0, base, 10, "")
-	for _, alias := range []string{"a.go", "./a.go", "A.GO"} {
+	aliases := []string{"a.go", "./a.go"}
+	// 与 normalizePath 的判定保持一致：Linux 上 a.go 与 A.GO 本就是两个不同文件，
+	// 不折叠是正确行为，不能在这里断言它们命中同一状态。
+	if runtime.GOOS == "darwin" || runtime.GOOS == "windows" {
+		aliases = append(aliases, "A.GO")
+	}
+	for _, alias := range aliases {
 		if _, ok := tr.Latest(alias); !ok {
 			t.Errorf("别名 %q 应命中同一状态", alias)
 		}
