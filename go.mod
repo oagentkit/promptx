@@ -1,12 +1,10 @@
 module github.com/oagentkit/promptx
 
-go 1.26.0
-
-toolchain go1.27.2
+go 1.24.0
 
 require (
-	github.com/oagentkit/runtime v0.7.0
-	github.com/oagentkit/textx v0.5.0
+	github.com/oagentkit/runtime v0.7.1
+	github.com/oagentkit/textx v0.6.1
 	github.com/oekit/concurrency v0.17.1
 )
 
