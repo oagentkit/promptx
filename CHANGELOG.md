@@ -8,7 +8,7 @@
 
 ## [v0.7.0] — 2026-10-19
 
-- 杂务(deps)：依赖地板对齐远端最新（runtime v0.6.0 / textx v0.4.0 / concurrency v0.17.1 / pkg v0.15.1） (#13)
+- 杂务(deps)：依赖地板对齐远端最新（runtime v0.6.0 / textx v0.4.0 / concurrency v0.17.1 / pkg v0.15.1）
 
 ## [v0.6.0] — 2026-10-19
 
@@ -36,10 +36,10 @@ Linux 上跑就暴露了这个问题（拆分前本仓没有 CI）。
 断言改为与 normalizePath 的平台判定保持一致。
 同一处修复已回填原 agentkit 单仓。
 
-- 杂务(deps)：依赖地板升到「历史最新 + 0.1.0」 (#4)
-- 杂务(deps)：跟进最新 tag (#3)
-- 杂务(deps)：oekit 依赖升级 (#2)
-- 杂务(deps)：跨仓依赖升级 (#1)
+- 杂务(deps)：依赖地板升到「历史最新 + 0.1.0」
+- 杂务(deps)：跟进最新 tag
+- 杂务(deps)：oekit 依赖升级
+- 杂务(deps)：跨仓依赖升级
 - 杂务(deps)：oekit/concurrency v0.12.0 -> v0.13.1
 - 杂务(deps)：oekit 三模块升至最新（pkg v0.13.0 / concurrency v0.12.0 / logx v0.7.0）
 - 杂务(deps)：oekit/concurrency v0.6.0 -> v0.9.0
