@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"unicode/utf8"
 )
 
 func TestBuildOrderingAndBlocks(t *testing.T) {
@@ -69,11 +70,14 @@ func TestBuildEmpty(t *testing.T) {
 }
 
 func TestSectionMetering(t *testing.T) {
-	s := NewSection("x", "", "", "abc") // 3 chars → 1 token
-	if s.Chars != 3 || s.Tokens != 1 {
-		t.Fatalf("计量: %d/%d", s.Chars, s.Tokens)
+	// 计量走 CJK 感知口径（promptx#30）：纯 ASCII「abc」= 3 单位 → 3/3+1 = 2
+	//（该口径非空下限 1 再 +1，短文本上略偏大，长文本可忽略——与 llm 预算记账
+	// 同源比「短文本更准但中文系统性低估一半」重要得多）。
+	s := NewSection("x", "", "", "abc")
+	if s.Chars != 3 || s.Tokens != 2 {
+		t.Fatalf("计量: %d/%d, want 3/2", s.Chars, s.Tokens)
 	}
-	s2 := NewSection("y", "", "", "abcd") // 4 chars → ceil(4/3)=2
+	s2 := NewSection("y", "", "", "abcd") // 4 单位 → 4/3+1 = 2
 	if s2.Tokens != 2 {
 		t.Fatalf("向上取整: %d", s2.Tokens)
 	}
@@ -157,5 +161,29 @@ func TestUserContextCustomWording(t *testing.T) {
 	res := b.Build()
 	if !strings.HasPrefix(res.UserContext, "参考材料：") || !strings.HasSuffix(res.UserContext, "免责") {
 		t.Fatalf("覆写措辞未生效: %q", res.UserContext)
+	}
+}
+
+// TestSectionTokensUseCJKOracle 中文段按 CJK 感知口径计量（promptx#30）。
+//
+// 判别式在两个口径的**比值**上，不是绝对值上：同一段中文下，
+// 纯 rune 口径 = ceil(runes/3)，CJK 口径 = ceil(2*runes/3)+1 ⇒ 约 2 倍。
+// 断言「Tokens 必须 ≥ runes*2/3」——退回 EstTokens 时 12 个汉字只得 4，
+// 而这里要求 ≥8，直接红。绝对值钉不死口径（两种口径在短 ASCII 上几乎重合）。
+func TestSectionTokensUseCJKOracle(t *testing.T) {
+	const cn = "提示词中文内容需要按汉字口径估算" // 16 个汉字
+	runes := utf8.RuneCountInString(cn)
+	s := NewSection("cn", "", "", cn)
+	if s.Chars != runes {
+		t.Fatalf("Chars = %d, want %d", s.Chars, runes)
+	}
+	// CJK 口径：每个汉字 2 单位 → units = 2*runes，tokens = units/3 + 1
+	want := 2*runes/3 + 1
+	if s.Tokens != want {
+		t.Fatalf("中文段 Tokens = %d, want %d（CJK 口径）——纯 rune 口径只会给 %d，"+
+			"与 llm 预算记账差约 2 倍", s.Tokens, want, (runes+2)/3)
+	}
+	if s.Tokens <= (runes+2)/3 {
+		t.Fatalf("Tokens = %d 不大于纯 rune 口径 %d——口径没切过来", s.Tokens, (runes+2)/3)
 	}
 }
