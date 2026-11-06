@@ -83,7 +83,11 @@ func NewSection(name string, target Target, boundary Boundary, content string) S
 		Boundary: boundary,
 		Content:  content,
 		Chars:    chars,
-		Tokens:   textutil.EstTokens(chars),
+		// CJK 感知口径（promptx#30）：纯 rune 计数把每个汉字算 1/3 token，而
+		// llm 的预算记账用 EstTokensCJK（汉字 2/3 token）——同一段中文提示词在
+		// 两个模块里差约 2 倍，预算闸门按哪个口径都会漏。口径必须与 llm 同源，
+		// 否则「组装时报告 800、发出去预算说 1600」，成本看板与预算闸门一起失真。
+		Tokens: textutil.EstTokensCJK(content),
 	}
 }
 
