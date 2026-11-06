@@ -2,6 +2,37 @@
 
 > 本文件由 `matrix-tools/scripts/gen_changelogs.py` 从 git 历史生成，按 tag 切段、取每段内的 conventional commit 渲染。
 
+## [v0.8.5] — 2026-11-07
+
+### 修复(sysprompt)：段计量切到 CJK 感知口径——与 llm 预算记账同源（textx#30）
+
+## 根因
+`NewSection` 用 `textutil.EstTokens(chars)` 算 `Tokens`，那是**纯 rune 口径**
+（rune/3）。而 `llm` 的预算记账从 v0.11.2 起已切到 `textutil.EstTokensCJK`
+（汉字计 2 单位，注释写明「纯 rune 计数口径对中文系统性低估」）。
+两个口径在中文上差约 **2 倍**：16 个汉字的段落，纯 rune 口径给 6，CJK 口径给 11。
+于是提示词组装报告的 `Section.Tokens` / `Result.TotalTokens` 与 llm 侧预算记账
+对不上——预算闸门按哪个口径都会漏，成本看板跟着失真。这是**跨模块口径断裂**，
+不是估算精度问题：估偏了不崩，只是静默地挤掉内容或提前拒绝。
+## 修法
+`Tokens: textutil.EstTokensCJK(content)`——与 llm 同源，且 `EstTokensCJK` 在
+promptx 当前依赖的 textx **v0.8.0 里就有**，不需要抬依赖。
+副作用交代清楚：`EstTokensCJK` 有「非空下限 1 再 +1」的形态，短 ASCII 段
+（如 `"abc"` → 2 而非 1）会略偏大。长文本上可忽略，而「短文本更准但中文系统性
+低估一半」是更坏的取舍。
+## 反向验证（实测红）
+退回 `EstTokens(chars)`：
+```
+中文段 Tokens = 6, want 11（CJK 口径）——纯 rune 口径只会给 6，与 llm 预算记账差约 2 倍
+```
+## 用例
+- `TestSectionMetering` 按新口径更新（`"abc"` → 3/2）；
+- 新增 `TestSectionTokensUseCJKOracle`：**判别式在两个口径的比值上，不是绝对值上**
+  ——绝对值钉不死口径（两种口径在短 ASCII 上几乎重合），故用 16 个汉字断言
+  `Tokens == 2*runes/3 + 1`（11）且严格大于纯 rune 口径（6）。
+
+- 杂务(deps)：依赖地板追到最新——runtime v0.9.0 / textx v0.10.0 / concurrency v0.27.0 / pkg v0.35.2
+
 ## [v0.8.4] — 2026-11-06
 
 - 杂务(deps)：依赖地板追到最新——github.com/oekit/pkg v0.35.0
