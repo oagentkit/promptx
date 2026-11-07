@@ -2,7 +2,7 @@ github.com/oagentkit/runtime v0.12.0 h1:03zltby2Le6F0FUTisxYOaD6Idf9wiqmlNxjvg1E
 github.com/oagentkit/runtime v0.12.0/go.mod h1:GgrSuuzeDEq4UKcDzoHoYXY23EePZXgwBOyAvok2DS8=
 github.com/oagentkit/textx v0.10.0 h1:LyjlB4iHuHm6Zd+nPPyhLOsIpXum62YgeJsAs5McRik=
 github.com/oagentkit/textx v0.10.0/go.mod h1:9tWFd+oYue5pbdqdvxZhNFplbTfS37n+5xwO5jluEIw=
-github.com/oekit/concurrency v0.28.0 h1:niGFAbA5s0vuUShofur479ZbzMSw4BtVDEBFb4Bv/3U=
-github.com/oekit/concurrency v0.28.0/go.mod h1:dJ8h++l2iUtRZDxvCIKWv+jth7fO9VlD1IoM+WTW9BY=
+github.com/oekit/concurrency v0.28.1 h1:PdP1VQF3KAO5+ldvogPsQ8kfk4qoLnoo/8KTde1vnZ0=
+github.com/oekit/concurrency v0.28.1/go.mod h1:HRmw/O1BsmyfM5DYFoZeL5LqzNAAxdkF0ESORPNxTjI=
 github.com/oekit/pkg v0.37.1 h1:Hq8FJnTtKNTyJ5gNFUl9ORQkM3WwzSriOHnUmF9bbyA=
 github.com/oekit/pkg v0.37.1/go.mod h1:sVeOtmG1sLY2aSnzFIbUAF2Qoh7G8R5vnWtWmLCv8NM=
