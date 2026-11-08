@@ -2,6 +2,37 @@
 
 > 本文件由 `matrix-tools/scripts/gen_changelogs.py` 从 git 历史生成，按 tag 切段、取每段内的 conventional commit 渲染。
 
+## [v0.9.0] — 2026-11-09
+
+### 修复(sysprompt)：Build 非规范 Target/Boundary 段保守归桶不丢弃并显式列 UnknownTargets（#43 #44）
+
+四桶 switch 无 default：非枚举 Target/Boundary（大小写/拼写/尾空格/字面量
+直构空串）的段不进块、不进 Sections、不计入 Total，全程零信号。改为归桶
+前逐维保守缺省（target 落 TargetSystem、boundary 落 Dynamic——与
+NewSection 空值缺省同立场，没想清楚稳定性就别进缓存前缀），照常进块/进
+全量段/计入计量，并按原值记入新增 Result.UnknownTargets 供调用方显式核对。
+不选 Build 返回 error：改签名是 BREAKING，且组装器面向运行中会话，
+保守归桶 + 显式出口优于中断。
+
+- 杂务(deps)：依赖地板追到最新——github.com/oagentkit/runtime v0.12.4
+
+| 依赖 | 现地板 | 抬到 |
+|---|---|---|
+| `github.com/oagentkit/runtime` | `v0.12.1` | `v0.12.4` |
+| `github.com/oagentkit/textx` | `v0.10.1` | `v0.10.4` |
+| `github.com/oekit/concurrency` | `v0.29.0` | `v0.30.1` |
+| `github.com/oekit/pkg` | `v0.38.0` | `v0.39.0` |
+## 为什么
+矩阵的**发版时刻地板时效**门禁（`verify_tag_floor --ref HEAD`）要求：各仓 HEAD
+（= 下次发版会发出去的内容）的依赖地板，相对那一刻的依赖最新版本，不能已落后。
+oekit 基座与矩阵模块都在高频发版 ⇒ 地板是**跑步机**，落后一格就会判红。
+## 兼容性实测
+本工具在提交前跑完 `go build` / `go vet` / `go test -race -count=1 ./...`（全绿才提交）
+与 `go mod tidy -diff`（无漂移）⇒ 改动**只影响依赖版本**，零行为差异。
+只改 `go.mod` / `go.sum` ⇒ 不需要 CHANGELOG 条目（版本段由下次发版的 `prewrite` 生成）。
+Co-authored-by: Murphy-Yi <zhangyi@Murphy-YideMac-Mini.local>
+
+
 ## [v0.8.7] — 2026-11-08
 
 - 杂务(deps)：依赖地板追平——pkg v0.38.0 / logx v0.8.11 / concurrency v0.29.0
