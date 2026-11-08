@@ -3,9 +3,9 @@ module github.com/oagentkit/promptx
 go 1.24.0
 
 require (
-	github.com/oagentkit/runtime v0.12.1
-	github.com/oagentkit/textx v0.10.1
-	github.com/oekit/concurrency v0.29.0
+	github.com/oagentkit/runtime v0.12.4
+	github.com/oagentkit/textx v0.10.4
+	github.com/oekit/concurrency v0.30.1
 )
 
-require github.com/oekit/pkg v0.38.0 // indirect
+require github.com/oekit/pkg v0.39.0 // indirect
