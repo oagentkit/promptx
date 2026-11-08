@@ -115,6 +115,12 @@ type Result struct {
 	// TotalChars / TotalTokens 全段计量。
 	TotalChars  int
 	TotalTokens int
+	// UnknownTargets Target/Boundary 非规范值（非枚举常量，含字面量直构的
+	// 空串）的段，按原值列出。这些段不丢弃：Target 落 TargetSystem、
+	// Boundary 落 Dynamic 保守归桶（与 NewSection 空值缺省同立场——没想清楚
+	// 稳定性就别进缓存前缀），照常进块、进 Sections、计入 Total；本字段是
+	// 拼写错误/大小写/尾空格等配置错误的显式核对出口（#43 #44）。
+	UnknownTargets []Section
 }
 
 // DefaultUserContextIntro 附加上下文的引导句缺省。
@@ -142,21 +148,38 @@ func (b *Builder) Add(s Section) *Builder {
 // Build 组装：排序（stable 先于 dynamic，system 先于 user_context）→ 分块 →
 // 计量。产物不引用入参切片（Build 后再 Add 不影响已产出的 Result）。
 // 单遍分桶：原 8 次 pick 全量扫，现一次归桶后复用。
+//
+// Target/Boundary 非规范值（非枚举常量——拼写错误/大小写/尾空格/字面量直构
+// 的空串）不丢弃：Target 落 TargetSystem、Boundary 落 Dynamic 保守归桶（与
+// NewSection 空值缺省同立场——没想清楚稳定性就别进缓存前缀），照常进块、进
+// Sections、计入 Total，并按原值记入 Result.UnknownTargets 供调用方显式核对
+// （#43 #44）。
 func (b *Builder) Build() Result {
 	var sysStable, sysDyn, ucStable, ucDyn []Section
+	var unknown []Section
 	for _, s := range b.sections {
+		target, boundary := s.Target, s.Boundary
+		if target != TargetSystem && target != TargetUserContext {
+			target = TargetSystem
+		}
+		if boundary != Stable && boundary != Dynamic {
+			boundary = Dynamic
+		}
+		if target != s.Target || boundary != s.Boundary {
+			unknown = append(unknown, s)
+		}
 		switch {
-		case s.Target == TargetSystem && s.Boundary == Stable:
+		case target == TargetSystem && boundary == Stable:
 			sysStable = append(sysStable, s)
-		case s.Target == TargetSystem && s.Boundary == Dynamic:
+		case target == TargetSystem && boundary == Dynamic:
 			sysDyn = append(sysDyn, s)
-		case s.Target == TargetUserContext && s.Boundary == Stable:
+		case target == TargetUserContext && boundary == Stable:
 			ucStable = append(ucStable, s)
-		case s.Target == TargetUserContext && s.Boundary == Dynamic:
+		default: // 归桶后仅剩 TargetUserContext+Dynamic
 			ucDyn = append(ucDyn, s)
 		}
 	}
-	res := Result{Sections: make([]Section, 0, len(b.sections))}
+	res := Result{Sections: make([]Section, 0, len(b.sections)), UnknownTargets: unknown}
 	res.Sections = append(res.Sections, sysStable...)
 	res.Sections = append(res.Sections, sysDyn...)
 	res.Sections = append(res.Sections, ucStable...)
