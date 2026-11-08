@@ -187,3 +187,80 @@ func TestSectionTokensUseCJKOracle(t *testing.T) {
 		t.Fatalf("Tokens = %d 不大于纯 rune 口径 %d——口径没切过来", s.Tokens, (runes+2)/3)
 	}
 }
+
+// TestBuildNonCanonicalSectionsNotDropped 回归（#43 #44）：Target/Boundary
+// 非规范值（大小写/拼写/尾空格）的段不得静默蒸发——保守归桶（target 落
+// system、boundary 落 dynamic，与 NewSection 空值缺省同立场）进块、进
+// Sections、计入 Total，并按原值记入 UnknownTargets 供调用方显式核对。
+func TestBuildNonCanonicalSectionsNotDropped(t *testing.T) {
+	b := &Builder{}
+	b.Add(NewSection("Policy", Target("System"), Stable, "禁止执行删除操作"))       // target 大小写拼错
+	b.Add(NewSection("mem", Target("memory"), Dynamic, "重要记忆"))             // 自定义 target
+	b.Add(NewSection("env", TargetSystem, Boundary("dynamic "), "环境信息"))    // boundary 尾空格
+	b.Add(NewSection("date", TargetUserContext, Boundary("Dynamic"), "天气")) // boundary 大小写
+	res := b.Build()
+
+	if len(res.System) != 2 {
+		t.Fatalf("stable+dynamic 两块（旧实现全部蒸发只剩空）: %d", len(res.System))
+	}
+	if !strings.Contains(res.System[0].Content, "禁止执行删除操作") {
+		t.Fatalf("非规范 target 段应保守落 stable 块: %+v", res.System[0])
+	}
+	if !strings.Contains(res.System[1].Content, "重要记忆") ||
+		!strings.Contains(res.System[1].Content, "环境信息") {
+		t.Fatalf("非规范 boundary 段应保守落 dynamic 块: %+v", res.System[1])
+	}
+	if !strings.Contains(res.UserContext, "天气") {
+		t.Fatalf("非规范 boundary 的 user_context 段应保守落 uc/dynamic: %q", res.UserContext)
+	}
+	if len(res.Sections) != 4 {
+		t.Fatalf("全量段不得缺: %d", len(res.Sections))
+	}
+	var chars int
+	for _, s := range res.Sections {
+		chars += s.Chars
+	}
+	if res.TotalChars != chars || res.TotalChars == 0 || res.TotalTokens == 0 {
+		t.Fatalf("计量不得缺块: total=%d sum=%d", res.TotalChars, chars)
+	}
+	if len(res.UnknownTargets) != 4 {
+		t.Fatalf("四段均含非规范值应全部列入 UnknownTargets: %+v", res.UnknownTargets)
+	}
+	if res.UnknownTargets[0].Target != Target("System") ||
+		res.UnknownTargets[1].Target != Target("memory") ||
+		res.UnknownTargets[2].Boundary != Boundary("dynamic ") ||
+		res.UnknownTargets[3].Boundary != Boundary("Dynamic") {
+		t.Fatalf("UnknownTargets 应按原值列出: %+v", res.UnknownTargets)
+	}
+}
+
+// TestBuildLiteralSectionCounted 回归（#44）：字面量直构 Section（绕过
+// NewSection 的缺省归一与计量）不蒸发——空 target/boundary 保守归桶进块并
+// 列入 UnknownTargets（旧实现整次 Build 产出空提示词照常返回）。
+func TestBuildLiteralSectionCounted(t *testing.T) {
+	b := &Builder{}
+	b.Add(Section{Name: "raw", Content: "裸段内容"})
+	res := b.Build()
+	if len(res.System) != 1 || !strings.Contains(res.System[0].Content, "裸段内容") {
+		t.Fatalf("字面量段应进块: %+v", res.System)
+	}
+	if len(res.Sections) != 1 || len(res.UnknownTargets) != 1 || res.UnknownTargets[0].Name != "raw" {
+		t.Fatalf("应进 Sections 并按原值列入 UnknownTargets: %+v", res)
+	}
+}
+
+// TestBuildCanonicalNoUnknown 守门：规范段（含 NewSection 空值缺省归一后的段）
+// 不得误列 UnknownTargets，正常组装不受影响。
+func TestBuildCanonicalNoUnknown(t *testing.T) {
+	b := &Builder{}
+	b.Add(IdentitySection("身份"))
+	b.Add(NewSection("env", "", "", "环境")) // 缺省归一 → system/dynamic
+	b.Add(DateSection(time.Date(2026, 11, 9, 0, 0, 0, 0, time.UTC)))
+	res := b.Build()
+	if len(res.UnknownTargets) != 0 {
+		t.Fatalf("规范段不应列入 UnknownTargets: %+v", res.UnknownTargets)
+	}
+	if len(res.System) != 2 || res.UserContext == "" || len(res.Sections) != 3 {
+		t.Fatalf("正常组装不受影响: %+v", res)
+	}
+}
