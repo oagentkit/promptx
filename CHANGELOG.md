@@ -22,6 +22,20 @@ Sections/进块组装生效，但 Build 累加循环只加自报计量 ⇒ Total
 - 新增 sysprompt_meter_test.go：裸段补算口径一致性、混合组装、自报计量不被
   改写（反证）、半计量补算（反证）、空段不造数（反证）
 
+- 杂务(deps)：依赖地板追到最新——github.com/oagentkit/runtime v0.12.6
+
+| 依赖 | 现地板 | 抬到 |
+|---|---|---|
+| `github.com/oagentkit/runtime` | `v0.12.5` | `v0.12.6` |
+## 为什么
+矩阵的**发版时刻地板时效**门禁（`verify_tag_floor --ref HEAD`）要求：各仓 HEAD
+（= 下次发版会发出去的内容）的依赖地板，相对那一刻的依赖最新版本，不能已落后。
+oekit 基座与矩阵模块都在高频发版 ⇒ 地板是**跑步机**，落后一格就会判红。
+## 兼容性实测
+本工具在提交前跑完 `go build` / `go vet` / `go test -race -count=1 ./...`（全绿才提交）
+与 `go mod tidy -diff`（无漂移）⇒ 改动**只影响依赖版本**，零行为差异。
+只改 `go.mod` / `go.sum` ⇒ 不需要 CHANGELOG 条目（版本段由下次发版的 `prewrite` 生成）。
+
 - 杂务(deps)：依赖地板追到最新——github.com/oekit/pkg v0.41.1
 
 | 依赖 | 现地板 | 抬到 |
