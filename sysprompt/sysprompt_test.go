@@ -234,9 +234,11 @@ func TestBuildNonCanonicalSectionsNotDropped(t *testing.T) {
 	}
 }
 
-// TestBuildLiteralSectionCounted 回归（#44）：字面量直构 Section（绕过
+// TestBuildLiteralSectionCounted 回归（#44 #57）：字面量直构 Section（绕过
 // NewSection 的缺省归一与计量）不蒸发——空 target/boundary 保守归桶进块并
-// 列入 UnknownTargets（旧实现整次 Build 产出空提示词照常返回）。
+// 列入 UnknownTargets（旧实现整次 Build 产出空提示词照常返回）；#57 起计量
+// 也不掉零：内容在 Sections 里就必须计入 Total（旧实现 Chars/Tokens 零值
+// 自报累加，Total 恒 0，预算闸门少算整段）。
 func TestBuildLiteralSectionCounted(t *testing.T) {
 	b := &Builder{}
 	b.Add(Section{Name: "raw", Content: "裸段内容"})
@@ -246,6 +248,9 @@ func TestBuildLiteralSectionCounted(t *testing.T) {
 	}
 	if len(res.Sections) != 1 || len(res.UnknownTargets) != 1 || res.UnknownTargets[0].Name != "raw" {
 		t.Fatalf("应进 Sections 并按原值列入 UnknownTargets: %+v", res)
+	}
+	if res.TotalChars == 0 || res.TotalTokens == 0 {
+		t.Fatalf("字面量段进了 Sections 却不计入 Total（#57）: total=%d/%d", res.TotalChars, res.TotalTokens)
 	}
 }
 

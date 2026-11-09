@@ -58,6 +58,8 @@ const (
 )
 
 // Section 一段提示词内容（自计量：Chars/Tokens 组装即算，供预算观测）。
+// 字面量直构（绕过 NewSection）时计量可为零值——Build 会按 NewSection 同口径
+// 兜底补算并回写（自报的非零计量原样尊重，#57）。
 type Section struct {
 	Name     string
 	Target   Target
@@ -184,7 +186,22 @@ func (b *Builder) Build() Result {
 	res.Sections = append(res.Sections, sysDyn...)
 	res.Sections = append(res.Sections, ucStable...)
 	res.Sections = append(res.Sections, ucDyn...)
-	for _, s := range res.Sections {
+	// 计量累加（#57 兜底）：段计量以自报为准（调用方显式设置的 Chars/Tokens
+	// 不得改写），但字面量直构 Section（绕过 NewSection）计量为零值——内容
+	// 非空而计量为零时按 NewSection 同口径补算（utf8.RuneCountInString +
+	// EstTokensCJK），补算结果回写进 Sections。否则裸段「进 Sections 不进
+	// Total」，预算闸门按 TotalTokens 少算整段，与全段计量自述相反。
+	// 空内容段零计量是合法状态，不补。
+	for i := range res.Sections {
+		s := &res.Sections[i]
+		if s.Content != "" {
+			if s.Chars == 0 {
+				s.Chars = utf8.RuneCountInString(s.Content)
+			}
+			if s.Tokens == 0 {
+				s.Tokens = textutil.EstTokensCJK(s.Content)
+			}
+		}
 		res.TotalChars += s.Chars
 		res.TotalTokens += s.Tokens
 	}
