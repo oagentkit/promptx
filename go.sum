@@ -1,5 +1,5 @@
-github.com/oagentkit/runtime v0.12.4 h1:qKEmqzQw+9LSxBXNuC2MdbIXSTmcxnP8brzWLFXvZ8Y=
-github.com/oagentkit/runtime v0.12.4/go.mod h1:NouEgc5nJZpyPfYyzIHnaXn3+s6ZBrC4PYGmU0P821c=
+github.com/oagentkit/runtime v0.12.5 h1:YcRtIO6M/pq3xrqsncaOcEv1i3u6X2Ljw20Y9TkDleI=
+github.com/oagentkit/runtime v0.12.5/go.mod h1:qZHIFLpswlDxg4rJEvlJq6vozg9IOQs9Zq+cL1JGGGw=
 github.com/oagentkit/textx v0.10.5 h1:v2rCony4skOUwI69KS2lXOe9VWjxUsWfvJWx5MegPds=
 github.com/oagentkit/textx v0.10.5/go.mod h1:r0DlmjdpK1qo5n7IhqZO/d3+6CbwUKAU0fITDWV96Xw=
 github.com/oekit/concurrency v0.31.0 h1:QlGcQatkA4UEGm4ZTytylaxzTDhtYf/IJHQ5e8MKzS4=
