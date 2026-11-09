@@ -2,6 +2,56 @@
 
 > 本文件由 `matrix-tools/scripts/gen_changelogs.py` 从 git 历史生成，按 tag 切段、取每段内的 conventional commit 渲染。
 
+## [v0.9.2] — 2026-11-10
+
+### 新增(sysprompt)：不变式组装器——分段组装四条工程不变式库侧单源（#56）
+
+style(test): 段序断言改 De Morgan 展开——staticcheck QF1001（lint 门禁红）
+
+### 修复(sysprompt)：Build 兜底补算裸构造 Section 计量，Total 不再少算整段（#57）
+
+裸构造 Section{Name, Content}（绕过 NewSection，Chars/Tokens 零值）照常进
+Sections/进块组装生效，但 Build 累加循环只加自报计量 ⇒ TotalChars/TotalTokens
+贡献恒 0——预算闸门按 TotalTokens 少算整段，与「全段计量」自述相反。
+- Build 累加循环兜底：Content 非空而 Chars/Tokens 为零值时按 NewSection 同
+  口径补算（utf8.RuneCountInString + textutil.EstTokensCJK），补算回写进
+  Sections；自报非零计量原样尊重（调用方口径负责），空内容段零计量合法不补
+- Section/Build 文档注释同步兜底语义
+- TestBuildLiteralSectionCounted 补上 Total 断言（测试名承诺「Counted」却只
+  查块不查 Total）
+- 新增 sysprompt_meter_test.go：裸段补算口径一致性、混合组装、自报计量不被
+  改写（反证）、半计量补算（反证）、空段不造数（反证）
+
+- 杂务(deps)：依赖地板追到最新——github.com/oekit/pkg v0.41.1
+
+| 依赖 | 现地板 | 抬到 |
+|---|---|---|
+| `github.com/oekit/pkg` | `v0.41.0` | `v0.41.1` |
+## 为什么
+矩阵的**发版时刻地板时效**门禁（`verify_tag_floor --ref HEAD`）要求：各仓 HEAD
+（= 下次发版会发出去的内容）的依赖地板，相对那一刻的依赖最新版本，不能已落后。
+oekit 基座与矩阵模块都在高频发版 ⇒ 地板是**跑步机**，落后一格就会判红。
+## 兼容性实测
+本工具在提交前跑完 `go build` / `go vet` / `go test -race -count=1 ./...`（全绿才提交）
+与 `go mod tidy -diff`（无漂移）⇒ 改动**只影响依赖版本**，零行为差异。
+只改 `go.mod` / `go.sum` ⇒ 不需要 CHANGELOG 条目（版本段由下次发版的 `prewrite` 生成）。
+
+- 杂务(deps)：依赖地板追到最新——github.com/oekit/concurrency v0.31.1
+
+| 依赖 | 现地板 | 抬到 |
+|---|---|---|
+| `github.com/oekit/concurrency` | `v0.31.0` | `v0.31.1` |
+| `github.com/oekit/pkg` | `v0.40.0` | `v0.41.0` |
+## 为什么
+矩阵的**发版时刻地板时效**门禁（`verify_tag_floor --ref HEAD`）要求：各仓 HEAD
+（= 下次发版会发出去的内容）的依赖地板，相对那一刻的依赖最新版本，不能已落后。
+oekit 基座与矩阵模块都在高频发版 ⇒ 地板是**跑步机**，落后一格就会判红。
+## 兼容性实测
+本工具在提交前跑完 `go build` / `go vet` / `go test -race -count=1 ./...`（全绿才提交）
+与 `go mod tidy -diff`（无漂移）⇒ 改动**只影响依赖版本**，零行为差异。
+只改 `go.mod` / `go.sum` ⇒ 不需要 CHANGELOG 条目（版本段由下次发版的 `prewrite` 生成）。
+
+
 ## [v0.9.1] — 2026-11-09
 
 - 杂务(deps)：依赖地板追到最新——github.com/oagentkit/textx v0.10.6
