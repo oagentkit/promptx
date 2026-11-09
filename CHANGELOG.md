@@ -4,6 +4,7 @@
 
 ## [v0.9.1] — 2026-11-09
 
+- 杂务(deps)：依赖地板追到最新——github.com/oagentkit/textx v0.10.6
 - 杂务(deps)：依赖地板追到最新——github.com/oagentkit/runtime v0.12.5
 
 | 依赖 | 现地板 | 抬到 |
