@@ -31,8 +31,9 @@ package sysprompt
 //	// res.Segments：逐段计量（预算归因 / 膨胀告警数据源）
 
 import (
+	"cmp"
 	"fmt"
-	"sort"
+	"slices"
 	"strings"
 	"unicode/utf8"
 
@@ -188,20 +189,12 @@ func (a *Assembler) Assemble(segs []Segment) (Assembled, error) {
 		}
 	}
 	// 3) 段序排序（稳定排序：类间按 segOrderRank，类内保持插入序——确定性）
-	sort.SliceStable(live, func(i, j int) bool {
-		return segOrderRank[live[i].Order] < segOrderRank[live[j].Order]
+	slices.SortStableFunc(live, func(a, b Segment) int {
+		return cmp.Compare(segOrderRank[a.Order], segOrderRank[b.Order])
 	})
 	// 4) 声明头指称真实性（数据语义声明头在说谎的组装比没有声明头更危险）
-	hasTail := false
-	hasAfterUser := false
-	for _, s := range live {
-		switch s.Order {
-		case SegOrderTail:
-			hasTail = true
-		case SegOrderAfterUser:
-			hasAfterUser = true
-		}
-	}
+	hasTail := slices.ContainsFunc(live, func(s Segment) bool { return s.Order == SegOrderTail })
+	hasAfterUser := slices.ContainsFunc(live, func(s Segment) bool { return s.Order == SegOrderAfterUser })
 	if hasAfterUser && !hasTail {
 		// 找第一个 after_user 段名进错误（点名锚点缺失面）
 		name := ""
