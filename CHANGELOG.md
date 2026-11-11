@@ -20,6 +20,11 @@
 测试按 issue 号命名新增 5 条回归用例；全仓 go test -count=1 全绿。
 Co-authored-by: Murphy-Yi <zhangyi@Murphy-YideMac-Mini.local>
 
+- 杂务(deps)：依赖地板追到最新——github.com/oekit/pkg v0.44.0
+
+Co-authored-by: Murphy-Yi <zhangyi@Murphy-YideMac-Mini.local>
+
+
 - 文档(changelog)：预写 v0.9.5 待发版段
 
 由 release.py prewrite 生成。
