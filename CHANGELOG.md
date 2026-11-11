@@ -2,6 +2,24 @@
 
 > 本文件由 `matrix-tools/scripts/gen_changelogs.py` 从 git 历史生成，按 tag 切段、取每段内的 conventional commit 渲染。
 
+## [v0.9.5] — 2026-11-11
+
+### 修复(filestate,steering,sysprompt)：三单清零——未知正文 fail-closed、Drain 兜底库内可执行、稳定区哨兵分离（#70 #71 #72）
+
+- #70 filestate.CheckEdit 同长同 mtime 分支：Content 相等才放行（含零字节
+  文件）；「读时正文未知」按 ErrStale fail-closed（错误文案点名请重新全量
+  读）——cp -p/rsync -a 回灌不再借 Content=="" 析取项静默放行
+- #71 steering 库内兑现「Drain 后未消费 → fallback 为 queue 语义」：
+  DrainGuides 取走条目登记 in-flight（带 push 序），新增 CommitGuides 消费
+  确认；DemoteGuidesToQueued 把未确认的按**原位次**归队为 queued——手工
+  Enqueue 的队尾插入打乱 FIFO 的形态修掉（先 Steer 后 Enqueue 的顺序在
+  降级后保持）
+- #72 sysprompt 前缀缓存稳定区 fail-fast 的哨兵与段名分离（sawDynamic 布尔
+  + dynamicName 文案）——动态段 Name 为空串（契约内合法输入）时不再静默
+  通过 stable→dynamic→stable 的缓存击穿产物
+测试按 issue 号命名新增 5 条回归用例；全仓 go test -count=1 全绿。
+Co-authored-by: Murphy-Yi <zhangyi@Murphy-YideMac-Mini.local>
+
 ## [v0.9.4] — 2026-11-11
 
 - 杂务(deps)：依赖地板追到最新——guardx v0.24.2 / textx v0.10.8 / runtime v0.12.7（2026-11-11 列车）
