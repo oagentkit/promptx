@@ -225,16 +225,23 @@ func (a *Assembler) Assemble(segs []Segment) (Assembled, error) {
 		}
 	}
 	// 5) 前缀缓存稳定区：PrefixStable 必须连续成前缀
-	sawDynamic := ""
+	// 哨兵与段名分离（promptx#72）：sawDynamic 同时当「布尔标志」与「段名」
+	// 用，动态段 Name 为空串（契约内合法输入——Segment.Name 仅计量归因、
+	// 未要求非空）时标志停在 ""，fail-fast 永不触发，stable→dynamic→stable
+	// 的缓存击穿产物静默通过。标志独立布尔、段名取首个动态段的 Name（可为
+	// 空，只影响报错文案的 %q）。
+	sawDynamic := false
+	dynamicName := ""
 	for _, s := range live {
 		if s.Stability == SegDynamic {
-			if sawDynamic == "" {
-				sawDynamic = s.Name
+			if !sawDynamic {
+				sawDynamic = true
+				dynamicName = s.Name
 			}
 			continue
 		}
-		if sawDynamic != "" {
-			return res, fmt.Errorf("sysprompt: 前缀稳定段 %q 排在动态段 %q 之后——前缀缓存区被击穿（稳定区必须连续成前缀；跨轮会变的段声明 dynamic，防线段收尾正确性优先、应声明 dynamic）", s.Name, sawDynamic)
+		if sawDynamic {
+			return res, fmt.Errorf("sysprompt: 前缀稳定段 %q 排在动态段 %q 之后——前缀缓存区被击穿（稳定区必须连续成前缀；跨轮会变的段声明 dynamic，防线段收尾正确性优先、应声明 dynamic）", s.Name, dynamicName)
 		}
 	}
 	// 6) 组装 + 防御性截断 + 声明头 + 逐段计量

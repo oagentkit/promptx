@@ -101,8 +101,16 @@ func (t *Tracker) CheckEdit(path string, curMtime time.Time, curSize int64, curC
 	// （cp -p/rsync -a 回灌）在该分支静默放行是 staleness 检测的真实绕过面
 	mtimeAdvanced := curMtime.UnixMilli() > last.MtimeMs
 	if !mtimeAdvanced && curSize == last.Size {
-		if last.Content == "" || last.Content == curContent {
+		// 「读时正文未知」≠「内容一致」（promptx#70）：Content=="" 的析取项
+		// 把未知当一致，没做比对就放行——cp -p 回灌绕过面原样保留（本分支
+		// 注释声称要堵的就是它）。收口：相等才放行（含双双为空的零字节文件
+		// ——size 0 时内容必然一致）；未知（一侧空一侧非空）按陈旧 fail-closed，
+		// 错误文案点名「无法比对」让调用方重新全量读，而不是默默可编辑。
+		if last.Content == curContent {
 			return nil
+		}
+		if last.Content == "" || curContent == "" {
+			return fmt.Errorf("%w: %s（读时正文未保留，同长同 mtime 的内容比对兜底无法执行——请重新全量读）", ErrStale, path)
 		}
 		return fmt.Errorf("%w: %s", ErrStale, path)
 	}
