@@ -20,6 +20,16 @@
 测试按 issue 号命名新增 5 条回归用例；全仓 go test -count=1 全绿。
 Co-authored-by: Murphy-Yi <zhangyi@Murphy-YideMac-Mini.local>
 
+- 文档(changelog)：预写 v0.9.5 待发版段
+
+由 release.py prewrite 生成。
+本提交**只**改 CHANGELOG.md——混入别的文件会被 squash 合成一个提交，
+生成器按「实际改了哪些文件」剔除零信息量提交的判据就会失效。
+* chore(steering): 移除无引用的 filterPending（in-flight 重构后无消费者，lint unused）
+---------
+Co-authored-by: Murphy-Yi <zhangyi@Murphy-YideMac-Mini.local>
+
+
 ## [v0.9.4] — 2026-11-11
 
 - 杂务(deps)：依赖地板追到最新——guardx v0.24.2 / textx v0.10.8 / runtime v0.12.7（2026-11-11 列车）
