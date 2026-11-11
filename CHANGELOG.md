@@ -4,11 +4,12 @@
 
 ## [v0.9.6] — 2026-11-12
 
-- 杂务(deps)：依赖地板追到最新——github.com/oekit/pkg v0.45.0
+- 杂务(deps)：依赖地板追到最新——oekit 基座 wave（concurrency v0.34.0 等）
 
+chore(deps): 依赖地板追到最新——github.com/oekit/concurrency v0.34.0
 | 依赖 | 现地板 | 抬到 |
 |---|---|---|
-| `github.com/oekit/pkg` | `v0.44.0` | `v0.45.0` |
+| `github.com/oekit/concurrency` | `v0.33.0` | `v0.34.0` |
 ## 为什么
 矩阵的**发版时刻地板时效**门禁（`verify_tag_floor --ref HEAD`）要求：各仓 HEAD
 （= 下次发版会发出去的内容）的依赖地板，相对那一刻的依赖最新版本，不能已落后。
