@@ -142,13 +142,3 @@ func (q *Queue) Len() int {
 	defer q.mu.Unlock()
 	return len(q.pending)
 }
-
-func filterPending(pending []pendingEntry, keep func(pendingEntry) bool) []pendingEntry {
-	out := pending[:0:0]
-	for _, pe := range pending {
-		if keep(pe) {
-			out = append(out, pe)
-		}
-	}
-	return out
-}
