@@ -4,5 +4,5 @@ github.com/oagentkit/textx v0.11.0 h1:+MsAqDAIdpQlvYzkO1E0Jky/tblhoo4rWmoyZSXCLb
 github.com/oagentkit/textx v0.11.0/go.mod h1:pG4e4SmKe13cNvp6hTC3Z8Q8d91wnydg7hT7DH5Qlsg=
 github.com/oekit/concurrency v0.34.0 h1:iYduDRRFtlENd9Yw9hD7KBdFWed8DgDSqlwPIYeXuuE=
 github.com/oekit/concurrency v0.34.0/go.mod h1:hhdqG+ff4GnPvpBjUy8+ce25TRyvy52Wh7Tlf2Gilsg=
-github.com/oekit/pkg v0.45.0 h1:VDUWqUcCHHfQKFk+jM55LwdPoOEU6eOBsWrmog+9x8w=
-github.com/oekit/pkg v0.45.0/go.mod h1:Cr6sJpBX2a0gAIgLa32+NY69h/UZtuN6L1ZdXtP9upo=
+github.com/oekit/pkg v0.46.0 h1:/c8p9EH2RdJgFPNjp1QQWc8jSU0zGS85MotwS7R6D6M=
+github.com/oekit/pkg v0.46.0/go.mod h1:Cr6sJpBX2a0gAIgLa32+NY69h/UZtuN6L1ZdXtP9upo=
