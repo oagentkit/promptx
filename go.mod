@@ -8,4 +8,4 @@ require (
 	github.com/oekit/concurrency v0.35.1
 )
 
-require github.com/oekit/pkg v0.47.1 // indirect
+require github.com/oekit/pkg v0.48.0 // indirect
