@@ -9,7 +9,9 @@
 //   - 读后 mtime 前进（整数毫秒比较，亚毫精度差不算——文件系统精度不一，
 //     小数级抖动会产生大量误报）或 size 变化 → ErrStale；
 //   - 全量读（offset≤1 且无 limit）且读时内容与当前内容一致 → 豁免 stale
-//     （formatter 重写等 mtime 变化但内容未变的场景）；
+//     （formatter 重写等 mtime 变化但内容未变的场景）——「一致」须**已知**：
+//     空内容由 size==0 佐证为真·空，size>0 的空串是未保留、比对无法执行，
+//     按 stale fail-closed（promptx#70/#95）；
 //   - 编辑成功后 RecordEdit 回写新状态，连锁编辑不误报。
 //
 // 状态源不限于专用 Read 工具：bash cat、外部回填同经 RecordRead 记录
@@ -106,7 +108,17 @@ func (t *Tracker) CheckEdit(path string, curMtime time.Time, curSize int64, curC
 		// 注释声称要堵的就是它）。收口：相等才放行（含双双为空的零字节文件
 		// ——size 0 时内容必然一致）；未知（一侧空一侧非空）按陈旧 fail-closed，
 		// 错误文案点名「无法比对」让调用方重新全量读，而不是默默可编辑。
+		//
+		// #95 再收口：「相等」里 `"" == ""` 也是相等——它既可能是零字节真·空，
+		// 也可能是**双侧正文都没保留**（size>0 的空串，Entry.Content 注释的
+		// 「部分读/未知留空」）。#70 的 fail-closed 只覆盖一侧空，双空在相等
+		// 短路处先行放行——同长同 mtime 回灌、size 变化、外部清空三形态全从
+		// 这里漏过。放行条件收紧为「相等**且已知**」：空内容必须由 size==0
+		// 佐证为真·空（size 0 时内容必然一致），否则按无法比对 fail-closed。
 		if last.Content == curContent {
+			if contentUnverified(last.Content, last.Size) || contentUnverified(curContent, curSize) {
+				return fmt.Errorf("%w: %s（读时正文未保留，同长同 mtime 的内容比对兜底无法执行——请重新全量读）", ErrStale, path)
+			}
 			return nil
 		}
 		if last.Content == "" || curContent == "" {
@@ -114,11 +126,24 @@ func (t *Tracker) CheckEdit(path string, curMtime time.Time, curSize int64, curC
 		}
 		return fmt.Errorf("%w: %s", ErrStale, path)
 	}
-	// 变化但内容一致（formatter 重写/无实质修改）：仅全量读且读时内容保留时豁免
+	// 变化但内容一致（formatter 重写/无实质修改）：仅全量读、读时内容保留且
+	// **已知**时豁免——#95：双空在本分支同样会 `"" == ""` 短路，size 100→120
+	// （同长豁免条件不成立但正文未保留）与外部清空 100→0 都曾被放行，直接
+	// 违反包文档「size 变化 → ErrStale」。空内容由 size==0 佐证才可信。
 	if !last.Partial && last.Offset <= 1 && last.Limit == 0 && last.Content == curContent {
+		if contentUnverified(last.Content, last.Size) || contentUnverified(curContent, curSize) {
+			return fmt.Errorf("%w: %s（读时正文未保留，变化路径的内容一致豁免无法执行——请重新全量读）", ErrStale, path)
+		}
 		return nil
 	}
 	return fmt.Errorf("%w: %s", ErrStale, path)
+}
+
+// contentUnverified 正文「空」但无法证明是真·空：size>0 而 Content 为空只能
+// 是未保留（Entry.Content「部分读/未知留空」），`"" == ""` 对它不构成比对。
+// size==0 的空串由文件本身佐证为真·空（零字节内容必然一致）。
+func contentUnverified(content string, size int64) bool {
+	return content == "" && size > 0
 }
 
 // RecordEdit 编辑成功后回写：以编辑结果登记一次全量读，连锁编辑不误报。
