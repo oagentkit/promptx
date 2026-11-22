@@ -32,8 +32,8 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/oagentkit/runtime/procx"
 	"github.com/oagentkit/textx/textutil"
+	pkgprocx "github.com/oekit/pkg/procx"
 )
 
 // Boundary 缓存边界。
@@ -369,10 +369,10 @@ func collectEnvRaw(ctx context.Context, dir string) envRaw {
 	run(func() { raw.isGit, _ = gitOut(ctx, dir, "rev-parse", "--is-inside-work-tree") })
 	if runtime.GOOS != "windows" {
 		run(func() {
-			if out, _, _, err := procx.Run(ctx, procx.RunRequest{
+			if res, err := pkgprocx.RunDetailed(ctx, pkgprocx.RunRequest{
 				Argv: []string{"uname", "-s", "-r"}, Timeout: 5 * time.Second, MaxStdout: 1 << 10,
 			}); err == nil {
-				raw.unameOut = out
+				raw.unameOut = res.Stdout
 			}
 		})
 	}
@@ -423,14 +423,14 @@ func parseStatusLines(stOut string) []string {
 }
 
 func gitOut(ctx context.Context, dir string, args ...string) (string, error) {
-	out, _, code, err := procx.Run(ctx, procx.RunRequest{
+	res, err := pkgprocx.RunDetailed(ctx, pkgprocx.RunRequest{
 		Argv:    append([]string{"git", "-C", dir}, args...),
 		Timeout: 5 * time.Second, MaxStdout: 1 << 16,
 	})
-	if err != nil || code != 0 {
-		return "", fmt.Errorf("git %v: exit=%d err=%v", args, code, err)
+	if err != nil || res.ExitCode != 0 {
+		return "", fmt.Errorf("git %v: exit=%d err=%v", args, res.ExitCode, err)
 	}
-	return out, nil
+	return res.Stdout, nil
 }
 
 func shellOf() string {
