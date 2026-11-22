@@ -16,11 +16,11 @@ go get github.com/oagentkit/promptx
 
 **tier 1** — 能力层，依赖 tier0。
 
-- 本仓依赖的矩阵内仓：`runtime`、`textx`。
+- 本仓依赖的矩阵内仓：`textx`。
 
 ## 外部依赖地板
 
-- **零第三方依赖。** 只依赖第一方基座 `github.com/oekit/concurrency` 与矩阵内的 `runtime`、`textx`。
+- **零第三方依赖。** 只依赖第一方基座 `github.com/oekit/concurrency` 与矩阵内的 `textx`。
 
 ## 与 oekit 的关系
 
