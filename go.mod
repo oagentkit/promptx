@@ -7,4 +7,4 @@ require (
 	github.com/oekit/concurrency v0.40.0
 )
 
-require github.com/oekit/pkg v0.61.3
+require github.com/oekit/pkg v0.61.4
