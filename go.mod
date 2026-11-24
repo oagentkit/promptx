@@ -7,4 +7,8 @@ require (
 	github.com/oekit/concurrency v0.40.0
 )
 
+<<<<<<< HEAD
 require github.com/oekit/pkg v0.61.1
+=======
+require github.com/oekit/pkg v0.61.2
+>>>>>>> 53d918d (build: 依赖地板对齐——pkg → v0.61.2)
