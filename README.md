@@ -1,6 +1,6 @@
 # promptx
 
-提示词上下文——system prompt 分段组装/运行中转向队列/文件读后写一致性状态 —— oagentkit 模块矩阵 **tier 1**（能力层，依赖 tier0）。
+提示词上下文——system prompt 分段组装/运行中转向队列/文件读后写一致性状态/反问挂起态/跨会话引用注入/记忆注入 —— oagentkit 模块矩阵 **tier 1**（能力层，依赖 tier0）。
 
 ```
 go get github.com/oagentkit/promptx
@@ -11,6 +11,9 @@ go get github.com/oagentkit/promptx
 | `sysprompt` | system prompt 分段组装：Section 化收集 → stable/dynamic 分离；不变式组装器（Segment 声明面：段序防线收尾/数据语义声明头/前缀缓存稳定区/分段计量） |
 | `steering` | 运行中转向队列：turn 执行中用户插入的新输入按投递语义生效 |
 | `filestate` | 读后写一致性状态：编辑/覆写文件前必须读过，且读后文件未被改动 |
+| `pending` | 反问/消歧挂起态的结构化载体：列内容恒为 State 的 JSON（写入端单源），读路径只认 JSON，非法值降级为「无挂起」。自 goagent-kernel 平移（归属评测 2026-11-26） |
+| `sessionref` | 跨会话引用快照注入：把另一个会话的结论以**有界、带来源、带失效点**的片段注入当前上下文（经 guardx/injectband 包裹防伪）。自 goagent-kernel 平移 |
+| `memorypipe` | 记忆的**注入-引用-打标**三段判据（读写时机归宿主）。自 goagent-kernel 平移 |
 
 ## 定位
 
