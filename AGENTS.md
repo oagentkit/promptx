@@ -1,6 +1,6 @@
 # AGENTS.md — oagentkit/promptx
 
-> 提示词上下文——system prompt 分段组装/运行中转向队列/文件读后写一致性状态
+> 提示词上下文——system prompt 分段组装/运行中转向队列/文件读后写一致性状态/反问挂起态/跨会话引用注入/记忆注入（6 个包：`sysprompt` `steering` `filestate` `pending` `sessionref` `memorypipe`）
 > module：`github.com/oagentkit/promptx` · org：[oagentkit = Open Agent Kit](https://github.com/oagentkit)
 > 矩阵分层：**tier 1**（能力层，依赖 tier0）
 
@@ -10,6 +10,9 @@
 `sysprompt/`
 `steering/`
 `filestate/`
+`pending/`
+`sessionref/`
+`memorypipe/`
 ```
 
 ## 硬规则
@@ -17,7 +20,7 @@
 ### 分层与依赖
 
 - 依赖严格自底向上，**禁止反向依赖**。本仓是 tier 1，只允许依赖 tier ≤ 1 的仓。
-- 本仓依赖的矩阵内仓：`textx`。
+- 本仓依赖的矩阵内仓：`textx`、`guardx`（sessionref 的 injectband 防伪包裹，t1→t0 向下依赖）。
 - 改 module 路径必须同步：全部 import、go.mod、README 安装行。
 
 ### 错误处理
