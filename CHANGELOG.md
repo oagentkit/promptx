@@ -2,7 +2,43 @@
 
 > 本文件由 `matrix-tools/scripts/gen_changelogs.py` 从 git 历史生成，按 tag 切段、取每段内的 conventional commit 渲染。
 
-## [v0.10.1] — 2026-11-23
+## [v0.11.0] — 2026-11-26
+
+### 新增：承接 kernel 对话状态三包（pending/sessionref/memorypipe）
+
+* feat: 承接 goagent-kernel 对话状态三包——pending/sessionref/memorypipe
+自 goagent-kernel 平移（归属评测 2026-11-26，kernel#504 同 wave）：三包判据
+主语是会话/提示上下文（反问挂起态载体/跨会话引用注入/记忆注入三段），不是
+多智能体编排，按概念域分派归 promptx（与 sysprompt/steering 同层姊妹包）。
+- 导出面与判据逐字未变（pending 零依赖；memorypipe 仅 oekit/pkg）；
+- sessionref 引入 guardx/injectband 地板（t1→t0 向下依赖，AGENTS.md 同步）；
+- 生命周期注释改为 org 通行约定（api-lifecycle 门禁不随迁）。
+* fix: go 指令回退 1.26.0——依赖图全在 1.26 地板内，tidy 误顶会让 CI（GOTOOLCHAIN=local，go 1.26.11）全红
+
+- 构建：依赖地板对齐——pkg → v0.61.4
+- 构建：依赖地板对齐——pkg → v0.61.3
+- 构建：依赖地板对齐——pkg → v0.61.2
+- 构建：依赖地板对齐——pkg → v0.61.2
+
+* build: 解决 go.mod 地板冲突（rebase 时同 module 两行版本取高者）
+* build: 解决 go.sum 冲突（rebase 时同 module 两版本取高者）
+
+- 构建：依赖地板对齐——pkg v0.60.0 → v0.61.1
+
+- 杂务(deps)：依赖地板追到最新——github.com/oagentkit/textx v0.13.0
+
+| 依赖 | 现地板 | 抬到 |
+|---|---|---|
+| `github.com/oagentkit/textx` | `v0.12.0` | `v0.13.0` |
+## 为什么
+矩阵的**发版时刻地板时效**门禁（`verify_tag_floor --ref HEAD`）要求：各仓 HEAD
+（= 下次发版会发出去的内容）的依赖地板，相对那一刻的依赖最新版本，不能已落后。
+oekit 基座与矩阵模块都在高频发版 ⇒ 地板是**跑步机**，落后一格就会判红。
+## 兼容性实测
+本工具在提交前跑完 `go build` / `go vet` / `go test -race -count=1 ./...`（全绿才提交）
+与 `go mod tidy -diff`（无漂移）⇒ 改动**只影响依赖版本**，零行为差异。
+只改 `go.mod` / `go.sum` ⇒ 不需要 CHANGELOG 条目（版本段由下次发版的 `prewrite` 生成）。
+
 
 - 文档：依赖清单对齐 go.mod 实际（runtime 依赖边已随 procx 单源解除）
 
