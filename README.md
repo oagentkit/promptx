@@ -19,11 +19,11 @@ go get github.com/oagentkit/promptx
 
 **tier 1** — 能力层，依赖 tier0。
 
-- 本仓依赖的矩阵内仓：`textx`。
+- 本仓依赖的矩阵内仓：`textx`、`guardx`（sessionref 的 injectband 防伪包裹）。
 
 ## 外部依赖地板
 
-- **零第三方依赖。** 只依赖第一方基座 `github.com/oekit/concurrency` 与矩阵内的 `textx`。
+- **零第三方依赖。** 只依赖第一方基座 `github.com/oekit/concurrency` / `github.com/oekit/pkg` 与矩阵内的 `textx` / `guardx`（t1→t0 向下依赖，合规）。
 
 ## 与 oekit 的关系
 
