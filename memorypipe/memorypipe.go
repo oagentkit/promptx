@@ -24,6 +24,8 @@
 // 按「project」查却回退到「global」看起来更友好，代价是**作用域失去了意义**：
 // 一条只该在某个项目里生效的记忆会在任何会话里生效，而报告完全正常。
 // 故 scope 不匹配就是丢弃，原因写清。
+//
+// 生命周期: Experimental——未过一个 minor 无 breaking 窗口（api-compat.md 晋级条件一），初值不承诺兼容
 package memorypipe
 
 import (

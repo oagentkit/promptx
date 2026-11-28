@@ -1,0 +1,29 @@
+# api-lifecycle 定级清单（判据同源 matrix-tools docs/adr/ADR-002 引用的
+# yi-nology/goagent-kernel docs/api-compat.md：breaking 四类 / 三级承诺 / 晋级三维）
+# 本文件一放，matrix-tools verify_api_lifecycle 全套判定即生效（新增包必须登记）。
+version: 1
+packages:
+  - pkg: sysprompt
+    level: Experimental
+    since: v0.11.0
+    reason: "system prompt 分段组装（Section 化收集、stable/dynamic 分离）；未过一个 minor 无 breaking 窗口（api-compat.md 晋级条件一），初值如实记为不承诺兼容"
+  - pkg: steering
+    level: Experimental
+    since: v0.11.0
+    reason: "运行中转向队列（生命周期接口，评审点名）；未过一个 minor 无 breaking 窗口（api-compat.md 晋级条件一），初值如实记为不承诺兼容"
+  - pkg: filestate
+    level: Experimental
+    since: v0.11.0
+    reason: "读后写一致性状态（编辑/覆写前必须读过且未被改动）；未过一个 minor 无 breaking 窗口（api-compat.md 晋级条件一），初值如实记为不承诺兼容"
+  - pkg: pending
+    level: Experimental
+    since: v0.11.0
+    reason: "反问/消歧挂起态的结构化载体（对话域，自 kernel 平移）；0.x 阶段 minor 允许 breaking（org 通行约定），未过晋级窗口，初值不承诺兼容"
+  - pkg: sessionref
+    level: Experimental
+    since: v0.11.0
+    reason: "跨会话引用快照（有界、带来源、带失效点）；0.x 阶段 minor 允许 breaking（org 通行约定），未过晋级窗口，初值不承诺兼容"
+  - pkg: memorypipe
+    level: Experimental
+    since: v0.11.0
+    reason: "记忆的注入-引用-打标三段（读写时机归宿主）；0.x 阶段 minor 允许 breaking（org 通行约定），未过晋级窗口，初值不承诺兼容"

@@ -19,6 +19,8 @@
 //	res := b.Build()
 //	// res.System[0] = stable 块（缓存断点），res.System[1] = dynamic 块
 //	// res.UserContext = 用户消息前缀的附加上下文（含「未必相关」免责句）
+//
+// 生命周期: Experimental——未过一个 minor 无 breaking 窗口（api-compat.md 晋级条件一），初值不承诺兼容
 package sysprompt
 
 import (

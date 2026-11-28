@@ -52,6 +52,8 @@
 // 已知边界（写明而不是假装覆盖）：包裹**标签**不可伪造（@<@ 已被转义），
 // 但 header 行是纯文本，body 里若出现形状相同的 header 行，读者无法从文本上
 // 分辨。故判定一律读**标签**的 source，不读 body 里的任何自称。
+//
+// 生命周期: Experimental——未过一个 minor 无 breaking 窗口（api-compat.md 晋级条件一），初值不承诺兼容
 package sessionref
 
 import (

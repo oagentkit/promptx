@@ -10,6 +10,8 @@
 //     把未确认的按**原位次**归队为 queued（手工 Enqueue 会打乱 FIFO 位次，
 //     先 Steer 后 Enqueue 的顺序在降级后必须保持）；
 //   - 同一 turn 内 guide 注入后续跑而非新开 turn，保持上下文连续。
+//
+// 生命周期: Experimental——未过一个 minor 无 breaking 窗口（api-compat.md 晋级条件一），初值不承诺兼容
 package steering
 
 import "sync"

@@ -11,6 +11,8 @@
 // 本包是**通用的多轮状态载体**，与「消歧/反问」的具体语义无关：
 // Kind/Stage/Word 等字段的取值由宿主的决策链定义，本包只负责
 // 「结构化 + 单一编码入口 + 宽容解码」。
+//
+// 生命周期: Experimental——未过一个 minor 无 breaking 窗口（api-compat.md 晋级条件一），初值不承诺兼容
 package pending
 
 import (
